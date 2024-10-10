@@ -20,27 +20,30 @@ class TaskController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'status' => 'required|in:Por Hacer,Pendiente,Completado',
         ]);
 
-        Task::create([
+        $task = Task::create([
             'name' => $request->name,
-            'status' => 'Por Hacer',
+            'status' => $request->status,
             'user_id' => Auth::id(),
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Tarea añadida exitosamente');
+        return response()->json($task, 201);
     }
 
     // Elimina una tarea
     public function destroy(Task $task)
     {
-        if ($task->user_id == Auth::id()) {
-            $task->delete();
-            return redirect()->route('dashboard')->with('success', 'Tarea eliminada exitosamente');
+        if ($task->user_id != Auth::id()) {
+            return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        return redirect()->route('dashboard')->with('error', 'No tienes permiso para eliminar esta tarea');
+        $task->delete();
+
+        return response()->json(['message' => 'Tarea eliminada'], 200);
     }
+
 
     // Marca una tarea como completada
     public function toggleCompleted(Task $task)
@@ -57,20 +60,27 @@ class TaskController extends Controller
     // Actualizar una tarea (nombre y estado)
     public function update(Request $request, Task $task)
     {
-        if ($task->user_id == Auth::id()) {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'status' => 'required|in:Por Hacer,Pendiente,Completado',
-            ]);
-
-            $task->update([
-                'name' => $request->name,
-                'status' => $request->status,
-            ]);
-
-            return redirect()->route('dashboard')->with('success', 'Tarea actualizada exitosamente');
+        if ($task->user_id != Auth::id()) {
+            return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        return redirect()->route('dashboard')->with('error', 'No autorizado');
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'status' => 'required|in:Por Hacer,Pendiente,Completado',
+        ]);
+
+        $task->update([
+            'name' => $request->name,
+            'status' => $request->status,
+        ]);
+
+        return response()->json(['message' => 'Tarea actualizada'], 200);
+    }
+
+
+    public function apiIndex()
+    {
+        $tasks = Task::where('user_id', Auth::id())->get();
+        return response()->json($tasks);
     }
 }
