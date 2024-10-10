@@ -1,33 +1,40 @@
-# Utiliza una imagen base de PHP con Apache
+# Usar una imagen oficial de PHP con Apache como base
 FROM php:8.3-apache
 
-# Instala las extensiones de PHP necesarias
-RUN docker-php-ext-install pdo pdo_mysql
+# Instalar dependencias del sistema y extensiones de PHP necesarias
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Instala Composer
+# Instalar Composer desde la imagen oficial
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Configura el directorio de trabajo
+# Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
-# Copia los archivos de la aplicación al contenedor
+# Copiar los archivos de la aplicación al contenedor
 COPY . /var/www/html
 
-# Instala las dependencias de Composer
-RUN composer install
+# Instalar las dependencias de Composer
+RUN composer install --no-scripts --no-autoloader
 
-# Copia el archivo de configuración de Apache
-COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
+# Generar archivos autoload optimizados
+RUN composer dump-autoload --optimize
 
-# Habilita el módulo de reescritura de Apache
+# Habilitar el módulo de reescritura de Apache
 RUN a2enmod rewrite
 
-# Establece los permisos adecuados
-RUN chown -R www-data:www-data /var/www/html \
+# Establecer permisos adecuados
+RUN chown -R www-data:www-data /var/www/html/storage \
     && chmod -R 755 /var/www/html/storage
 
 # Exponer el puerto 80
 EXPOSE 80
 
-# Comando para iniciar Apache
+# Comando para iniciar Apache en primer plano
 CMD ["apache2-foreground"]
