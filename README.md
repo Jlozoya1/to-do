@@ -87,4 +87,4 @@ php artisan migrate
 php artisan db:seed
 ```
 
-Por defecto tendra que haber un usuario llamado Test User con correo test@tes.com, passw: 12345678
+Por defecto tendra que haber un usuario llamado Test User con correo test@test.com, passw: 12345678
