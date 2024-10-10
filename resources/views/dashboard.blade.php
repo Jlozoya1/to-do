@@ -90,11 +90,12 @@
             });
         });
 
+        const userId = {{ Auth::id() }};
         let tasks = []; // Array global para almacenar las tareas
 
         // Función para cargar tareas desde LocalStorage
         function loadTasksFromLocalStorage() {
-            tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks = JSON.parse(localStorage.getItem('tasks_user_' + userId)) || [];
             renderTasks();
             // Cargar tareas desde la base de datos y sincronizar
             loadTasksFromDatabase();
@@ -205,7 +206,8 @@
             tasks.push(newTask);
             localStorage.setItem('tasks', JSON.stringify(tasks));
             renderTasks();
-
+            
+            localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
             // Enviar a la base de datos
             fetch('/tasks', {
                 method: 'POST',
@@ -238,13 +240,13 @@
         // Función para actualizar el nombre de una tarea
         function updateTaskName(index, newName, taskId) {
             tasks[index].name = newName;
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
         }
 
         // Función para actualizar el estado de una tarea
         function updateTaskStatus(index, newStatus, taskId) {
             tasks[index].status = newStatus;
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
         }
 
         // Función para actualizar una tarea (enviar cambios a la base de datos)
@@ -278,7 +280,7 @@
         function deleteTask(index, taskId) {
             let task = tasks[index];
             tasks.splice(index, 1); // Eliminar tarea del array
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
             renderTasks();
 
             // Eliminar de la base de datos
