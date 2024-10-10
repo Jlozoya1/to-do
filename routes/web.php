@@ -16,8 +16,14 @@ Route::post('/register', [UserController::class, 'register'])->name('register.po
 
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
-Route::get('/dashboard', [TaskController::class, 'index'])->name('dashboard')->middleware('auth');
-Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
-Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [TaskController::class, 'index'])->name('dashboard');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::patch('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+});
 Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggleCompleted'])->name('tasks.toggle');
-Route::patch('/tasks/{task}/status', [TaskController::class, 'update'])->name('tasks.update');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/tasksAPI', [TaskController::class, 'apiIndex'])->name('api.tasks.index');
+});
