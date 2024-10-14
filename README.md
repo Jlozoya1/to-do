@@ -1,90 +1,75 @@
-# 🚀 Proyecto Laravel con Docker
+# 🚀 To-Do List App - Laravel + Sail
 
-![Laravel](https://img.shields.io/badge/Laravel-FF2D20?logo=laravel&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white)
-
-## 📝 Descripción
-
-Este proyecto es una aplicación web desarrollada con **Laravel**, utilizando **Docker** y **Docker Compose** para la gestión de contenedores. Incluye una base de datos **MySQL** y está configurado para facilitar el desarrollo y despliegue de la aplicación.
+Este proyecto es una aplicación de **Lista de Tareas** construida con **Laravel** y configurada para ejecutarse utilizando **Laravel Sail** (Docker). A continuación te explico cómo configurarlo y ejecutarlo fácilmente utilizando Sail.
 
 ## 📋 Prerrequisitos
 
-Antes de comenzar, asegúrate de tener instalado lo siguiente en tu máquina:
+Antes de comenzar, asegúrate de tener instalados los siguientes requisitos en tu sistema:
 
 - [Docker](https://www.docker.com/get-started) 🐳
-- [Docker Compose](https://docs.docker.com/compose/install/) 🐳
 
-## 🔧 Instalación
+## 🛠️ Instalación
 
-1. **Clonar el repositorio**
+### 1. Clonar el repositorio
 
-   ```bash
-   git clone https://github.com/Jlozoya1/to-do
-   cd to-do
-   ```
-
-2. **Configurar las variables de entorno**
-
-   Crea una copia del archivo `.env.example` y renómbrala a `.env`.
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Edita el archivo `.env` con tus configuraciones:
-
-   ```env
-   DB_DATABASE=nombre_de_la_base_de_datos
-   DB_USERNAME=tu_usuario
-   DB_PASSWORD=tu_contraseña
-   # DB_ROOT_PASSWORD=tu_contraseña_segura (para producción)
-   ```
-
-## 🛠️ Uso
-
-### 📦 Iniciar los Contenedores
-
-Para construir y levantar los contenedores de Docker, ejecuta:
+Clona el repositorio en tu máquina local:
 
 ```bash
-docker-compose up -d --build
+git clone https://github.com/tu-usuario/to-do-list.git
+cd to-do-list
 ```
 
-Esto hará lo siguiente:
+### 2. Configurar el archivo `.env`
 
-- Construirá la imagen de la aplicación Laravel.
-- Descargarás la imagen de MySQL si aún no la tienes.
-- Creará y levantará los contenedores en segundo plano.
-
-### 🔄 Migrar la Base de Datos
-
-Para ejecutar las migraciones de Laravel dentro del contenedor `myApp`, utiliza:
+Copia el archivo de configuración `.env.example` a `.env` y ajusta las variables necesarias, como la configuración de la base de datos:
 
 ```bash
-docker-compose exec myApp php artisan migrate
+cp .env.example .env
 ```
 
-### 🐘 Acceder a la Aplicación
+### 3. Instalar dependencias
 
-Una vez que los contenedores estén levantados y las migraciones ejecutadas, puedes acceder a la aplicación en tu navegador en:
-
-🌐 **[http://localhost:8000](http://localhost:8000)**
-
-### 🐳 Verificar el Estado de los Contenedores
-
-Para ver el estado de los contenedores en ejecución:
+Para instalar las dependencias del proyecto, usa Sail con Composer:
 
 ```bash
-docker-compose ps
+./vendor/bin/sail composer install
 ```
+Tambien deberas de editar el puerto por defecto que te genera el SAIL
 
-Si el contenedor mysql no corre, crear una base de datos en localhost:3306 llamada "to_do_list"
-despues hacer dentro de la terminal denrto del proyecto 
+### 4. Migrar la base de datos
+
+Ejecuta las migraciones de la base de datos para crear las tablas necesarias:
 
 ```bash
-php artisan migrate
-php artisan db:seed
+./vendor/bin/sail artisan migrate
 ```
 
-Por defecto tendra que haber un usuario llamado Test User con correo test@test.com, passw: 12345678
+## 🚀 Cómo Ejecutar el Proyecto
+
+### Levantar los servicios con Laravel Sail
+
+Para levantar el entorno Docker de Sail, ejecuta:
+
+```bash
+./vendor/bin/sail up -d
+```
+
+Esto levantará los servicios de Docker (PHP, MySQL, Redis, etc.) en segundo plano.
+
+### Acceder a la aplicación
+
+Una vez que los servicios estén levantados, puedes acceder a la aplicación en tu navegador en:
+
+```
+http://localhost:8000
+```
+
+### Ejecutar comandos usando Sail
+
+Puedes ejecutar comandos de Laravel Artisan o Composer usando Sail. Algunos ejemplos:
+
+- **Ejecutar Artisan:**
+
+  ```bash
+  ./vendor/bin/sail artisan migrate
+  ```
