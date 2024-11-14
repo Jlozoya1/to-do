@@ -92,6 +92,20 @@
 
         const userId = {{ Auth::id() }};
         let tasks = []; // Array global para almacenar las tareas
+        let pendingActions = JSON.parse(localStorage.getItem('pending_actions_user_' + userId)) || [];
+
+        // Variable para detectar el estado de conexión
+        let isOnline = navigator.onLine;
+
+        window.addEventListener('online', () => {
+            isOnline = true;
+            syncPendingActions();
+        });
+
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            alert('Estás sin conexión. Los cambios se guardarán localmente y se sincronizarán cuando vuelvas a estar en línea.');
+        });
 
         // Función para cargar tareas desde LocalStorage
         function loadTasksFromLocalStorage() {
@@ -120,7 +134,7 @@
                         tasks.push(taskFromDB);
                     }
                 });
-                localStorage.setItem('tasks', JSON.stringify(tasks));
+                localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
                 renderTasks();
             })
             .catch(error => console.error('Error al cargar tareas desde la base de datos:', error));
@@ -140,7 +154,7 @@
                 taskNameInput.className = 'form-control';
                 taskNameInput.value = task.name;
                 taskNameInput.oninput = function() {
-                    updateTaskName(index, this.value, task.id);
+                    updateTaskName(index, this.value);
                 };
                 taskNameCell.appendChild(taskNameInput);
                 row.appendChild(taskNameCell);
@@ -160,7 +174,7 @@
                     taskStatusSelect.appendChild(option);
                 });
                 taskStatusSelect.onchange = function() {
-                    updateTaskStatus(index, this.value, task.id);
+                    updateTaskStatus(index, this.value);
                 };
                 taskStatusCell.appendChild(taskStatusSelect);
                 row.appendChild(taskStatusCell);
@@ -174,7 +188,7 @@
                 updateButton.textContent = 'Actualizar';
                 updateButton.className = 'btn btn-success me-2';
                 updateButton.onclick = function() {
-                    updateTask(index, task.id);
+                    updateTask(index);
                 };
                 actionsCell.appendChild(updateButton);
 
@@ -183,7 +197,7 @@
                 deleteButton.textContent = 'Eliminar';
                 deleteButton.className = 'btn btn-danger';
                 deleteButton.onclick = function() {
-                    deleteTask(index, task.id);
+                    deleteTask(index);
                 };
                 actionsCell.appendChild(deleteButton);
 
@@ -204,11 +218,23 @@
             };
 
             tasks.push(newTask);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            renderTasks();
-            
             localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
-            // Enviar a la base de datos
+            renderTasks();
+
+            if (isOnline) {
+                // Enviar a la base de datos
+                sendAddTaskToServer(newTask);
+            } else {
+                // Guardar acción pendiente
+                pendingActions.push({
+                    action: 'add',
+                    task: newTask,
+                });
+                localStorage.setItem('pending_actions_user_' + userId, JSON.stringify(pendingActions));
+            }
+        }
+
+        function sendAddTaskToServer(task) {
             fetch('/tasks', {
                 method: 'POST',
                 credentials: 'include',
@@ -218,42 +244,57 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 },
                 body: JSON.stringify({
-                    name: taskName,
-                    status: 'Por Hacer',
+                    name: task.name,
+                    status: task.status,
                 }),
             })
             .then(response => response.json())
             .then(taskFromDB => {
                 // Actualizar el ID de la tarea con el ID real de la base de datos
-                tasks = tasks.map(task => {
-                    if (task.id === newTask.id) {
-                        task.id = taskFromDB.id;
+                tasks = tasks.map(t => {
+                    if (t.id === task.id) {
+                        t.id = taskFromDB.id;
                     }
-                    return task;
+                    return t;
                 });
-                localStorage.setItem('tasks', JSON.stringify(tasks));
+                localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
                 renderTasks();
             })
             .catch(error => console.error('Error al agregar tarea a la base de datos:', error));
         }
 
         // Función para actualizar el nombre de una tarea
-        function updateTaskName(index, newName, taskId) {
+        function updateTaskName(index, newName) {
             tasks[index].name = newName;
             localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
         }
 
         // Función para actualizar el estado de una tarea
-        function updateTaskStatus(index, newStatus, taskId) {
+        function updateTaskStatus(index, newStatus) {
             tasks[index].status = newStatus;
             localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
         }
 
         // Función para actualizar una tarea (enviar cambios a la base de datos)
-        function updateTask(index, taskId) {
+        function updateTask(index) {
             let task = tasks[index];
-            // Actualizar en la base de datos
-            fetch(`/tasks/${taskId}`, {
+            localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
+
+            if (isOnline) {
+                // Actualizar en la base de datos
+                sendUpdateTaskToServer(task);
+            } else {
+                // Guardar acción pendiente
+                pendingActions.push({
+                    action: 'update',
+                    task: task,
+                });
+                localStorage.setItem('pending_actions_user_' + userId, JSON.stringify(pendingActions));
+            }
+        }
+
+        function sendUpdateTaskToServer(task) {
+            fetch(`/tasks/${task.id}`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: {
@@ -277,13 +318,27 @@
         }
 
         // Función para eliminar una tarea
-        function deleteTask(index, taskId) {
+        function deleteTask(index) {
             let task = tasks[index];
+            let taskId = task.id;
             tasks.splice(index, 1); // Eliminar tarea del array
             localStorage.setItem('tasks_user_' + userId, JSON.stringify(tasks));
             renderTasks();
 
-            // Eliminar de la base de datos
+            if (isOnline) {
+                // Eliminar de la base de datos
+                sendDeleteTaskToServer(taskId);
+            } else {
+                // Guardar acción pendiente
+                pendingActions.push({
+                    action: 'delete',
+                    taskId: taskId,
+                });
+                localStorage.setItem('pending_actions_user_' + userId, JSON.stringify(pendingActions));
+            }
+        }
+
+        function sendDeleteTaskToServer(taskId) {
             fetch(`/tasks/${taskId}`, {
                 method: 'DELETE',
                 credentials: 'include',
@@ -300,6 +355,25 @@
                 }
             })
             .catch(error => console.error(error));
+        }
+
+        // Función para sincronizar acciones pendientes al reconectarse
+        function syncPendingActions() {
+            if (pendingActions.length === 0) return;
+
+            pendingActions.forEach(actionObj => {
+                if (actionObj.action === 'add') {
+                    sendAddTaskToServer(actionObj.task);
+                } else if (actionObj.action === 'update') {
+                    sendUpdateTaskToServer(actionObj.task);
+                } else if (actionObj.action === 'delete') {
+                    sendDeleteTaskToServer(actionObj.taskId);
+                }
+            });
+
+            // Limpiar la cola de acciones pendientes
+            pendingActions = [];
+            localStorage.setItem('pending_actions_user_' + userId, JSON.stringify(pendingActions));
         }
     </script>
 </body>
