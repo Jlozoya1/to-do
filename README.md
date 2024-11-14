@@ -15,7 +15,7 @@ Antes de comenzar, asegúrate de tener instalados los siguientes requisitos en t
 Clona el repositorio en tu máquina local:
 
 ```bash
-git clone https://github.com/tu-usuario/to-do-list.git
+git clone https://github.com/Jlozoya1/to-do-list.git
 cd to-do-list
 ```
 
