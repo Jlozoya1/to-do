@@ -17,8 +17,9 @@ Route::post('/register', [UserController::class, 'register'])->name('register.po
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [TaskController::class, 'index'])->name('dashboard');
+    // Route::get('/dashboard', [TaskController::class, 'index'])->name('dashboard');
     Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::post('/taskUpdate', [TaskController::class, 'updateAll'])->name('task.updateAll');
     Route::patch('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
@@ -27,3 +28,8 @@ Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggleCompleted'])
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tasksAPI', [TaskController::class, 'apiIndex'])->name('api.tasks.index');
 });
+
+Route::get('{any}', function () {
+    return view('dashboard');
+})->where('any', '.*');
+

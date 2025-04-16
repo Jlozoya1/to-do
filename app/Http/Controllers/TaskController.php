@@ -11,8 +11,9 @@ class TaskController extends Controller
     // Muestra la lista de tareas
     public function index()
     {
-        $tasks = Task::where('user_id', Auth::id())->get(); // Obtiene las tareas del usuario autenticado
-        return view('dashboard', compact('tasks'));
+        // $tasks = Task::where('user_id', Auth::id())->get(); // Obtiene las tareas del usuario autenticado
+        // return view('dashboard', compact('tasks'));
+        return response()->json(Task::where('user_id', Auth::id())->get());
     }
 
     // Almacena una nueva tarea
@@ -75,6 +76,25 @@ class TaskController extends Controller
         ]);
 
         return response()->json(['message' => 'Tarea actualizada'], 200);
+    }
+
+    public function updateAll(Request $request, Task $task){
+        $id = $request->input('id');
+
+        $task = Task::findOrFail($id);
+
+        if($request->action == 'update'){
+            $task->update([
+                'name' => $request->name,
+                'status' => $request->status,
+            ]);
+        }
+
+        if($request->action == 'delete'){
+            $task->delete();
+        }
+
+        return response()->json(['message' => 'Success'], 200);
     }
 
 
