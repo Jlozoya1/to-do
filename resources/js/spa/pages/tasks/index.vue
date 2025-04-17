@@ -65,10 +65,10 @@
       },
       methods: {
         loadTasksFromDatabase(){
-          this.$axios.get('tasksAPI')
+          this.$axios.get('/tasksAPI')
             .then((response)=> {
               let items = response.data;
-
+              console.log(response.data);
               this.dataItems.push(...items);
             })
             .catch(error => console.error ('Error from DB ', error));

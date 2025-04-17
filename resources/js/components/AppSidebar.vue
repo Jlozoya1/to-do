@@ -2,23 +2,29 @@
   <div>
     <a-layout style="min-height: 100vh">
       <a-layout-sider v-model:collapsed="collapsed" collapsible>
-        <div class="logo" />
+        <div class="logo" >
+          <img :src="logo" alt="logo" style="max-height: 64px;">
+        </div>
         <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
           <!-- <router-link :to="{name: 'asd'}">Dashboard</router-link> -->
 
-          <a-menu-item key="1">
-            <router-link :to="{name: 'dashboardCharts'}">
-              <pie-chart-outlined />
-              <span>Dashboard</span>
+          <a-menu-item key="1" @click="changeTitle('Dashboard')">
+            <router-link :to="{name: 'dashboardCharts'}" @click.prevent>
+              <div class="center-items">
+                <LineChartOutlined />
+                <span>Dashboard</span>
+              </div>
             </router-link>
           </a-menu-item>
-          <a-menu-item key="2">
-            <router-link :to="{name: 'tasks'}">
-              <desktop-outlined />
-              <span>New Tasks</span>
+          <a-menu-item key="2" @click="changeTitle('New Tasks')">
+            <router-link :to="{name: 'tasks'}" @click.prevent>
+              <div class="center-items">
+                <CarryOutOutlined />
+                <span>New Tasks</span>
+              </div>
             </router-link>
           </a-menu-item>
-          <a-sub-menu key="sub1">
+          <!-- <a-sub-menu key="sub1">
             <template #title>
               <span>
                 <user-outlined />
@@ -38,16 +44,19 @@
             </template>
             <a-menu-item key="6">Team 1</a-menu-item>
             <a-menu-item key="8">Team 2</a-menu-item>
-          </a-sub-menu>
-          <a-menu-item key="9">
-            <router-link :to="{name: 'settingsIndex'}">
-              <file-outlined />
-              <span>Settings</span>
+          </a-sub-menu> -->
+          <a-menu-item key="9" @click="changeTitle('Settings')">
+            <router-link :to="{name: 'settingsIndex'}" @click.prevent>
+              <div class="center-items">
+                <SettingOutlined/>
+                <span>Settings</span>
+              </div>
             </router-link>
           </a-menu-item>
         </a-menu>
       </a-layout-sider>
     <a-layout>
+      <nav-bar :title="title"/>
       <router-view/>
     </a-layout>
   </a-layout>
@@ -56,40 +65,24 @@
 
 <script lang="ts" setup>
   import {
-    PieChartOutlined,
-    DesktopOutlined,
+    CarryOutOutlined,
     UserOutlined,
     TeamOutlined,
-    FileOutlined,
+    SettingOutlined,
+    LineChartOutlined,
   } from '@ant-design/icons-vue';
-  import { ref } from 'vue';
+
+  import logo from '@/assets/images/logo2.png';
+  import { reactive, ref } from 'vue';
+  import navBar from './navBar.vue';
 
   const collapsed = ref<boolean>(false);
   const selectedKeys = ref<string[]>(['1']);
+  const title = ref<string>('Dashboard');
 
-  let menu = [
-    {
-      type: 'menu',
-      key: 48,
-      routeName: "dashboardasd",
-      isSelected(){
-        this.$router.push({name: 'asd'});
-      }
-      // allowAccess: "insurance.profile",
-      // name: "DASHBOARD",
-      // icon(){
-      //   return Vue.prototype.$_h(
-      //     'ProfileOutlined',
-      //   );
-      // },
-      // isSelected(){
-      //   return true;
-      // }
-    },
-  ];
-  function gonme(){
-    this.$router.push({name: 'asd'});
-  }
+  function changeTitle(newTitle: string) {
+    title.value = newTitle
+  };
 </script>
 
 <style scoped>
@@ -104,5 +97,15 @@
   }
   [data-theme='dark'] .site-layout .site-layout-background {
     background: #141414;
+  }
+  .logo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .center-items{
+    display: flex;
+    align-items: center;
   }
 </style>

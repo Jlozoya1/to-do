@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import path from 'path';
 
 export default defineConfig({
     plugins: [
@@ -9,10 +11,12 @@ export default defineConfig({
             refresh: true,
         }),
         vue(),
+        vueJsx(),
     ],
     resolve: {
         alias: {
             'vue': 'vue/dist/vue.esm-bundler.js',
+            '@': path.resolve(__dirname, 'resources/js'),
         },
     },
 });

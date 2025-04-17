@@ -2,8 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Lista de Tareas</title>
+    {{-- <title>Dashboard - Lista de Tareas</title> --}}
     <!-- Incluir Bootstrap CSS -->
+    @vite('resources/js/app.js')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Estilos personalizados */
@@ -32,21 +33,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
-    <!-- Navbar -->
-    {{-- <nav class="navbar navbar-dark bg-dark">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">{{ strtoupper(Auth::user()->name) }}</span>
-            <form action="{{ route('logout') }}" method="POST" class="d-flex">
-                @csrf
-                <button type="submit" class="btn btn-outline-light">Cerrar Sesión</button>
-            </form>
-        </div>
-    </nav> --}}
 
     <div id="app">
-      <app-sidebar></app-sidebar>
+      <router-view/>
     </div>
 
-    @vite('resources/js/app.js')
+
 </body>
 </html>

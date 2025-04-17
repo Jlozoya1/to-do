@@ -4,16 +4,12 @@ import Antd from 'ant-design-vue';
 import Axios from './axios.js';
 import router from './router/index.js'
 import 'ant-design-vue/dist/antd.css';
-import ExampleComponent from './components/ExampleComponent.vue';
-import AppSidebar from './components/AppSidebar.vue';
+import VueApexCharts from 'vue3-apexcharts'
+import App from './app.vue';
 
+const app = createApp(App);
 
-const app = createApp({
-    components: {
-        AppSidebar
-    },
-});
-
+app.component('apexchart', VueApexCharts);
 app.use (router);
 app.use(Antd);
 app.config.globalProperties.$axios = Axios;
