@@ -22,7 +22,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
         ]);
 
         // Crear el nuevo usuario
@@ -32,8 +32,10 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        return response()->json(['message' => 'Success'], 200);
+
         // Redirigir o hacer algo después de registrar al usuario
-        return redirect()->route('login')->with('success', 'Usuario registrado exitosamente');
+        // return redirect()->route('login')->with('success', 'Usuario registrado exitosamente');
     }
 
     public function showLoginForm()

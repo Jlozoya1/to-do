@@ -11,77 +11,120 @@
         </div>
 
         <h2 class="mt-5">Tus Tareas</h2>
-        <table class="table table-dark table-hover mt-3">
-            <thead>
-                <tr>
-                    <th>Tarea</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="task-list">
-              <tr v-for="(task, index) in dataItems" :key="index">
-                <td>
-                  <input type="text" class="form-control" v-model="task.name" @input="updateTaskAll(task, 'update')"/>
-                </td>
 
-                <td>
-                  <select class="form-control" v-model="task.status" @change="updateTaskAll(task, 'update')">
-                    <option v-for="status in statuses" :key="status" :value="status">
-                      {{ status }}
-                    </option>
-                  </select>
-                </td>
+        <a-table :dataSource="dataItems" :columns="columns" :loading="loading">
+          <template #bodyCell="{ column, text, record, index }">
 
-                <td class="d-flex">
-                  <!-- <button
-                    class="btn btn-success me-2"
-                    @click="updateTaskAll(task, 'update')"
-                  >
-                    Actualizar
-                  </button> -->
-                  <button
-                    class="btn btn-danger"
-                    @click="updateTaskAll(task, 'delete')"
-                  >
-                    Eliminar
-                  </button>
-                </td>
+            <template v-if="column.dataIndex === 'name'">
+              <a-input v-model:value="record.name" @input="onInputChange(record, 'update')">
+                <template #prefix>
+                  <EditFilled />
+                </template>
+              </a-input>
+            </template>
 
-              </tr>
-            </tbody>
-        </table>
+            <template v-else-if="column.dataIndex === 'status'">
+              <a-select
+                v-model:value="record.status"
+                style="width: 100%"
+                @change="updateTaskAll(record, 'update')"
+              >
+                <a-select-option
+                  v-for="status in statuses"
+                  :key="status"
+                  :value="status"
+                  :disabled="isOptionSelected(status, record)"
+                >
+                {{ status }}
+                </a-select-option>
+              </a-select>
+            </template>
+
+            <template v-else-if="column.dataIndex === 'action'">
+              <a-popconfirm
+                v-if="dataItems.length"
+                title="Sure to delete?"
+                @confirm="updateTaskAll(task, 'delete')"
+              >
+              <!-- <button class="btn btn-danger">
+                Delete
+              </button> -->
+              <a>
+                <a-tag :color="'volcano'">
+                  Delete
+                </a-tag>
+              </a>
+              </a-popconfirm>
+            </template>
+
+          </template>
+        </a-table>
     </div>
   </template>
 
-  <script>
+<script>
+  import { message } from 'ant-design-vue';
+  import { EditFilled } from '@ant-design/icons-vue';
+  import debounce from 'lodash/debounce';
+
     export default {
       data(){
         return {
           dataItems: [],
           statuses: ['Por Hacer', 'Pendiente', 'Completado'],
           newTaskName: '',
+          loading: false,
+          columns: [
+            {
+              title: 'Task',
+              dataIndex: 'name',
+              key: 'task',
+            },
+            {
+              title: 'Status',
+              dataIndex: 'status',
+              key: 'status',
+              width: '30%',
+            },
+            {
+              title: 'Action',
+              dataIndex: 'action',
+              width: '10%',
+              align: 'center'
+            },
+          ],
         }
+      },
+      components: {
+        EditFilled
       },
       methods: {
         loadTasksFromDatabase(){
+          this.loading = true;
+
           this.$axios.get('/tasksAPI')
             .then((response)=> {
               let items = response.data;
-              console.log(response.data);
               this.dataItems.push(...items);
+              this.loading = false;
             })
-            .catch(error => console.error ('Error from DB ', error));
+            .catch((error) => {
+              this.loading = false;
+              message.error ('Error from DB ', error);
+            })
         },
         addTask(){
-          if(this.newTaskName != ''){
-            let newTask = {
-              name: this.newTaskName,
-              status: 'Por Hacer',
-            };
-
-            this.sendAddTaskToServer(newTask);
+          if(this.newTaskName == ''){
+            message.error('Please Insert Name Task');
+            return;
           }
+
+          let newTask = {
+            name: this.newTaskName,
+            status: 'Por Hacer',
+          };
+
+          this.sendAddTaskToServer(newTask);
         },
         sendAddTaskToServer(task){
           let queryParams = {
@@ -89,15 +132,14 @@
             status: task.status
           };
 
-          this.$axios.post('tasks', queryParams)
+          this.$axios.post('/tasks', queryParams)
           .then(() => {
-            // console.log('Tarea Guardada');
             this.dataItems = [];
             this.loadTasksFromDatabase();
-
+            message.success('Task Succesfully Saved');
           })
           .catch((error) => {
-            console.error('Error Saving Task', error);
+            message.error('Error Saving Task', error);
           });
         },
         updateTaskAll(task, action){
@@ -109,26 +151,41 @@
             action: action
           };
 
-          this.$axios.post('taskUpdate', queryParams)
+          this.$axios.post('/taskUpdate', queryParams)
           .then(() => {
-            // console.log('Task Updated');
+            action == 'delete'
+            ? message.success('Task Succesfully Deleted')
+            : message.success('Task Succesfully Updated');
           })
           .catch((error) => {
-            console.error('An error has Ocurred', error);
+            message.error('An error has Ocurred', error);
           });
 
           if (action === 'delete') {
             this.dataItems = this.dataItems.filter(t => t.id !== task.id);
           }
         },
+        isOptionSelected(status, currentRecord){
+          return this.dataItems.some(
+            item => item.status === status && item !== currentRecord
+          );
+        },
+        onInputChange(task, action) {
+          this.debouncedUpdateTask(task, action);
+        }
 
       },
       computed: {
 
+      },
+      created(){
+        this.debouncedUpdateTask = debounce((task, action) => {
+          this.updateTaskAll(task, action);
+        }, 3000);
       },
       mounted() {
         this.loadTasksFromDatabase();
       }
 
     }
-  </script>
+</script>
