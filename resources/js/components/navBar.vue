@@ -1,22 +1,8 @@
 <template>
   <div>
-    <a-page-header
-      :title="title"
-    >
+    <a-page-header>
     <template #extra>
-      <!-- <a-button key="1" type="primary">Primary</a-button> -->
-       <a-dropdown :trigger="['click']">
-        <a class="ant-dropdown-link" @click.prevent>
-          <BarsOutlined style="color: black; font-size: 30px;"/>
-        </a>
-        <template #overlay>
-            <a-menu>
-                <a-menu-item key="0" @click="logout">
-                    <span>Sign Out</span>
-                </a-menu-item>
-            </a-menu>
-        </template>
-       </a-dropdown>
+       <span class="right-corner" > {{ title }} </span>
     </template>
     </a-page-header>
   </div>
@@ -25,6 +11,7 @@
 <script setup>
   import { ref } from 'vue';
   import { BarsOutlined } from '@ant-design/icons-vue';
+  import { message } from 'ant-design-vue';
   import axios from 'axios';
 
   defineProps({
@@ -37,8 +24,23 @@
         window.location.href = '/login';
     })
     .catch((error) => {
-        console.error('Error trying to Sign Out', error);
+        message.error('Error trying to Sign Out');
+        // console.error('Error trying to Sign Out', error);
     })
   }
 
 </script>
+
+<style>
+    .right-corner{
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        margin-right: 12px;
+        margin-bottom: 0;
+        color: rgba(0, 0, 0, 0.85);
+        font-weight: 600;
+        font-size: 20px;
+        line-height: 32px;
+    }
+</style>

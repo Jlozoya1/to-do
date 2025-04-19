@@ -1,4 +1,9 @@
 <template>
+  <div style="display: flex; justify-content: center;">
+    <div style="padding: 0.7rem; background-color: #04284a; border: none; border-radius: 10px;">
+      <span style="color:white; font-weight: 500; font-size: 1rem;">Perfomance of the Company Employes Charts</span>
+    </div>
+  </div>
   <div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; margin-top: 3em;">
 
     <div style="flex: 0 0 48%; text-align: center;">

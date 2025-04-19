@@ -1,12 +1,11 @@
 <template>
   <div>
     <a-layout style="min-height: 100vh">
-      <a-layout-sider v-model:collapsed="collapsed" collapsible>
+      <a-layout-sider v-model:collapsed="collapsed" :trigger="null" collapsible>
         <div class="logo" >
-          <img :src="logo" alt="logo" style="max-height: 64px;">
+          <img :src="logo" alt="logo" style="max-height: 7vh;">
         </div>
-        <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
-          <!-- <router-link :to="{name: 'asd'}">Dashboard</router-link> -->
+        <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline" style="height: 93vh; display: flex; flex-direction: column;">
 
           <a-menu-item key="1" @click="changeTitle('Dashboard')">
             <router-link :to="{name: 'dashboardCharts'}" @click.prevent>
@@ -53,6 +52,13 @@
               </div>
             </router-link>
           </a-menu-item>
+
+          <a-menu-item style="margin-top: auto;" @click="logout">
+            <div class="center-items">
+              <user-outlined />
+              <span>Log Out</span>
+            </div>
+          </a-menu-item>
         </a-menu>
       </a-layout-sider>
     <a-layout>
@@ -73,8 +79,10 @@
   } from '@ant-design/icons-vue';
 
   import logo from '@/assets/images/logo2.png';
+  import { message } from 'ant-design-vue';
   import { reactive, ref } from 'vue';
   import navBar from './navBar.vue';
+  import axios from 'axios';
 
   const collapsed = ref<boolean>(false);
   const selectedKeys = ref<string[]>(['1']);
@@ -83,14 +91,25 @@
   function changeTitle(newTitle: string) {
     title.value = newTitle
   };
+
+  function logout(){
+    axios.post('/logout')
+    .then(() => {
+        window.location.href = '/login';
+    })
+    .catch((error) => {
+        message.error('Error trying to Sign Out');
+        // console.error('Error trying to Sign Out', error);
+    })
+  };
 </script>
 
 <style scoped>
-  #components-layout-demo-side .logo {
+  /* #components-layout-demo-side .logo {
     height: 32px;
     margin: 16px;
     background: rgba(255, 255, 255, 0.3);
-  }
+  } */
 
   .site-layout .site-layout-background {
     background: #fff;

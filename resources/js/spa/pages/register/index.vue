@@ -156,7 +156,7 @@
 
           <p class="login-link">
             Already Have An Account?
-            <a href="#">Log In</a>
+            <a href="/login">Log In</a>
           </p>
         </div>
       </div>
@@ -174,15 +174,15 @@
                 <quote-icon />
               </div>
               <blockquote>
-                "Esta plataforma ha transformado la manera en que trabajo. La interfaz es intuitiva y el soporte es excepcional."
+                "Since I started using this platform, the way I work has totally changed. It’s super easy to use."
               </blockquote>
               <div class="testimonial-author">
                 <div class="author-avatar">
                   <!-- <img src="/placeholder.svg?height=50&width=50" alt="Avatar" /> -->
                 </div>
                 <div class="author-info">
-                  <div class="author-name">María González</div>
-                  <div class="author-title">Diseñadora UX/UI</div>
+                  <div class="author-name">Juan Lozoya</div>
+                  <div class="author-title">WEB Developer</div>
                 </div>
               </div>
             </div>

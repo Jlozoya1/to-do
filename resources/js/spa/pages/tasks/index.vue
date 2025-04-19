@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-        <div class="form-container">
+        <!-- <div class="form-container">
             <h2 class="text-center">Agregar Nueva Tarea</h2>
             <div id="task-form" class="mt-3">
                 <div class="input-group">
@@ -8,9 +8,27 @@
                     <button @click="addTask" class="btn btn-primary">Añadir Tarea</button>
                 </div>
               </div>
+        </div> -->
+
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px; ">
+            <h2 style="text-align: center;">Got Something to Do?</h2>
+            <div id="task-form" style="margin-top: 2rem;">
+                <div style="display: flex;">
+                    <input v-model="newTaskName"
+                        type="text"
+                        id="task-name"
+                        placeholder="Task Name"
+                        required
+                        style="flex: 1; padding: 0.5rem 0.5rem 0.5rem 1rem; border: 1px solid #ccc; border-radius: 10px 0 0 10px;">
+                    <button @click="addTask"
+                            style="padding: 0.5rem 1rem; background-color: #04284a; color: white; border: none; border-radius: 0 10px 10px 0; cursor: pointer;">
+                        Add New Task
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <h2 class="mt-5">Tus Tareas</h2>
+        <h2 class="mt-5">All Your Tasks</h2>
 
         <a-table :dataSource="dataItems" :columns="columns" :loading="loading">
           <template #bodyCell="{ column, text, record, index }">
@@ -140,6 +158,9 @@
           })
           .catch((error) => {
             message.error('Error Saving Task', error);
+          })
+          .finally(() => {
+            this.newTaskName = '';
           });
         },
         updateTaskAll(task, action){
@@ -166,9 +187,7 @@
           }
         },
         isOptionSelected(status, currentRecord){
-          return this.dataItems.some(
-            item => item.status === status && item !== currentRecord
-          );
+          return status == currentRecord.status;
         },
         onInputChange(task, action) {
           this.debouncedUpdateTask(task, action);
