@@ -1,31 +1,25 @@
 <template>
-    <div>
-        <h1>This is Home</h1>
-    </div>
-  </template>
+  <div>
+    <Header/>
+    <Page/>
+  </div>
+</template>
 
-  <script>
+<script>
+import Header from './components/header.vue';
+import Page from './components/page.vue';
 
-    export default {
-      components: {
-
-      },
-      data: function () {
-        return {
-
-        }
-      },
-      watch: {
-
-      },
-      computed: {
-
-      },
-      mounted: function () {
-
-      },
-      methods: {
+  export default {
+    components: {
+      Header,Page
+    },
+    data() {
+      return {
 
       }
+    },
+    methods: {
+
     }
-  </script>
+  }
+</script>
